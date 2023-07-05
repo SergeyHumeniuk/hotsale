@@ -34,5 +34,67 @@
         </form>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#registration-form').submit(function(event) {
+                event.preventDefault(); // Зупиняємо стандартну відправку форми
+
+                var name = $('#name').val();
+                var surname = $('#surname').val();
+                var email = $('#email').val();
+                var password = $('#password').val();
+                var confirmPassword = $('#confirm-password').val();
+
+                // Виконуємо клієнтську валідацію
+                if (!validateEmail(email)) {
+                    displayErrorMessage('Введіть коректну адресу електронної пошти.');
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    displayErrorMessage('Паролі не співпадають.');
+                    return;
+                }
+
+                // AJAX запит на обробку даних на сервері
+                $.ajax({
+                    url: 'php/registration.php',
+                    type: 'POST',
+                    data: {
+                        'name': name,
+                        'surname': surname,
+                        'email': email,
+                        'password': password,
+                        'confirmPassword': confirmPassword
+                    },
+                    success: function(response) {
+                        if (response === 'success') {
+                            displaySuccessMessage('Ви успішно зареєстровані!');
+                            $('#registration-form').hide();
+                        } else {
+                            displayErrorMessage('Помилка при реєстрації.');
+                        }
+                    },
+                    error: function() {
+                        displayErrorMessage('Помилка при відправці AJAX запиту.');
+                    }
+                });
+            });
+
+            function validateEmail(email) {
+                // Проста перевірка наявності символу @
+                return email.indexOf('@') !== -1;
+            }
+
+            function displaySuccessMessage(message) {
+                $('#success-message').text(message).show(); 
+            }
+
+            function displayErrorMessage(message) {
+                $('#error-message').text(message).show();
+            }
+        });
+    </script>
 </body>
 </html>
